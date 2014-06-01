@@ -1,4 +1,4 @@
 thrift-tutorial
 ===============
 
-To provide how to install and service example and etc
+To provide how to install and to make service and etc
