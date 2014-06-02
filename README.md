@@ -4,19 +4,19 @@ thrift-tutorial
 Apache thrift를 쉽게 접근하기 위한 도움을 제공합니다.<br />
 최신 버전(0.9.1)을 기준으로 합니다.
 
-###### 설치
+###### thrift 설치
 - [Download](http://thrift.apache.org/download)
 - [Install](http://thrift.apache.org/docs/BuildingFromSource)
 - [Trouble shooting](https://docs.google.com/document/d/1vQoibvBzBvCakKxjr_0y9SDKfbG74X_uJtBKVVbNHJ4/edit?usp=sharing)
 
-###### 개발환경
+###### tutorial 동작 환경
 - Ubuntu Linux
 - JDK7
 - Apache-ant-1.9.4
 - Apache-maven-3.2.1
 - IntelliJ 13.1.3
 
-###### 필수 Maven dependencies
+###### tutorial 필수 Maven dependencies
     <dependency>
         <groupId>org.apache.thrift</groupId>
         <artifactId>libthrift</artifactId>
@@ -35,3 +35,4 @@ Apache thrift를 쉽게 접근하기 위한 도움을 제공합니다.<br />
 ###### 예제
 - Echo service
 - File upload/download service 
+
