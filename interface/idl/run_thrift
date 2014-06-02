@@ -1,0 +1,4 @@
+echo "rm -rf ../src/main/java/*"
+rm -rf ../src/main/java/*
+echo "thrift -v -r --gen java -out ../src/main/java example.thrift"
+thrift -v -r --gen java -out ../src/main/java example.thrift
