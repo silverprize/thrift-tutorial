@@ -22,22 +22,46 @@ import java.nio.channels.FileChannel;
 public class ExampleClient {
 
     public static void main(String[] args) throws TException, IOException, URISyntaxException {
-        TTransport transport = new TSocket("localhost", 8877);
+        if (args.length != 2) {
+            throw new TException("invalid arguments");
+        }
+
+        String address = "localhost";
+        int port = 10004;
+        if (System.getProperty("address") != null) {
+            address = System.getProperty("address");
+        }
+        if (Integer.getInteger("port") != null) {
+            port = Integer.getInteger("port");
+        }
+
+        TTransport transport = new TSocket(address, port);
         TProtocol protocol = new TBinaryProtocol(transport);
         ExampleService.Client client = new ExampleService.Client(protocol);
         transport.open();
-        String rev = client.echo("Ah lololololo.");
-        System.out.println(rev);
-        transport.close();
 
-        File file = new File(ExampleClient.class.getResource("/holololo.jpg").toURI());
+        if ("echo".equals(args[0])) {
+            echo(client, args[1]);
+        } else if ("upload".equals(args[0])) {
+            upload(client, args[1]);
+        }
+
+        transport.close();
+    }
+
+    private static void echo(ExampleService.Client client, String msg) throws TException {
+        String rev = client.echo(msg);
+        System.out.println(rev);
+    }
+
+    private static void upload(ExampleService.Client client, String path) throws URISyntaxException, TException, IOException {
+        File file = new File(path);
         UploadInfo uploadInfo = new UploadInfo();
         uploadInfo.msg = UploadMessage.BEGIN_UPLOAD;
         uploadInfo.fileName = file.getName();
         uploadInfo.length = file.length();
 
         boolean success = true;
-        transport.open();
         if (client.upload(uploadInfo)) {
             FileInputStream fis = new FileInputStream(file);
             FileChannel fileChannel = fis.getChannel();
@@ -61,7 +85,6 @@ public class ExampleClient {
                 success = false;
             }
         }
-        transport.close();
 
         String alertMsg = success ? "Success to upload." : "Failure to upload.";
         System.out.println(alertMsg);

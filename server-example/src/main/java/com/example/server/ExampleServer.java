@@ -11,7 +11,11 @@ import org.apache.thrift.transport.TTransportException;
  */
 public class ExampleServer {
     public static void main(String[] args) throws TTransportException {
-        TServerTransport transport = new TServerSocket(8877);
+        int port = 10004;
+        if (Integer.getInteger("port") != null) {
+            port = Integer.getInteger("port");
+        }
+        TServerTransport transport = new TServerSocket(port);
         TSimpleServer.Args simpleServerArgs = new TSimpleServer.Args(transport);
         ExampleServiceImpl serviceImpl = new ExampleServiceImpl();
         ExampleService.Processor<ExampleService.Iface> processor = new ExampleService.Processor<ExampleService.Iface>(serviceImpl);

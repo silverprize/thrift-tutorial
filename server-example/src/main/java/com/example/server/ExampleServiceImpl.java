@@ -24,7 +24,7 @@ public class ExampleServiceImpl implements ExampleService.Iface {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        return null;
+        throw new TException();
     }
 
     @Override
