@@ -26,38 +26,44 @@ public class ExampleClient {
         TProtocol protocol = new TBinaryProtocol(transport);
         ExampleService.Client client = new ExampleService.Client(protocol);
         transport.open();
-        String rev = client.echo("Ah asdljasldj");
+        String rev = client.echo("Ah lololololo.");
         System.out.println(rev);
         transport.close();
 
-        transport.open();
         File file = new File(ExampleClient.class.getResource("/holololo.jpg").toURI());
         UploadInfo uploadInfo = new UploadInfo();
         uploadInfo.msg = UploadMessage.BEGIN_UPLOAD;
         uploadInfo.fileName = file.getName();
         uploadInfo.length = file.length();
 
+        boolean success = true;
+        transport.open();
         if (client.upload(uploadInfo)) {
-            FileInputStream f = new FileInputStream(file);
-            FileChannel fileChannel = f.getChannel();
+            FileInputStream fis = new FileInputStream(file);
+            FileChannel fileChannel = fis.getChannel();
             ByteBuffer buffer = ByteBuffer.allocate(1024 * 10);
-            boolean sendAll = true;
+
             uploadInfo.msg = UploadMessage.PROGRESS_UPLOAD;
+            uploadInfo.data = buffer;
             while ((uploadInfo.length = fileChannel.read(buffer)) > 0) {
                 buffer.flip();
-                uploadInfo.data = buffer;
                 if (!client.upload(uploadInfo)) {
-                    sendAll = false;
+                    success = false;
                     break;
                 }
                 buffer.clear();
             }
+            fis.close();
+
             uploadInfo.msg = UploadMessage.END_UPLOAD;
+            uploadInfo.data = null;
             if (!client.upload(uploadInfo)) {
-                sendAll = false;
+                success = false;
             }
-            f.close();
         }
         transport.close();
+
+        String alertMsg = success ? "Success to upload." : "Failure to upload.";
+        System.out.println(alertMsg);
     }
 }
