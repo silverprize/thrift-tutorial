@@ -1,7 +1,6 @@
 package com.example.server;
 
 import com.example.ExampleService;
-import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
