@@ -11,10 +11,12 @@ import org.apache.thrift.transport.TTransport;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Scanner;
 
 /**
  * Created by silver on 14. 6. 2.
@@ -22,10 +24,6 @@ import java.nio.channels.FileChannel;
 public class ExampleClient {
 
     public static void main(String[] args) throws TException, IOException, URISyntaxException {
-        if (args.length != 2) {
-            throw new TException("invalid arguments");
-        }
-
         String address = "localhost";
         int port = 10004;
         if (System.getProperty("address") != null) {
@@ -38,29 +36,49 @@ public class ExampleClient {
         TTransport transport = new TSocket(address, port);
         TProtocol protocol = new TBinaryProtocol(transport);
         ExampleService.Client client = new ExampleService.Client(protocol);
-        transport.open();
 
-        if ("echo".equals(args[0])) {
-            echo(client, args[1]);
-        } else if ("upload".equals(args[0])) {
-            upload(client, args[1]);
-        }
+        Scanner prompt = new Scanner(System.in);
+        do {
+            printMenus();
+            String arg = prompt.nextLine();
+            if ("1".equals(arg)) {
+                System.out.print("Input message: ");
+                String msg = prompt.nextLine();
+                echo(client, msg);
+            } else if ("2".equals(arg)) {
+                System.out.print("Input file path: ");
+                String path = prompt.nextLine();
+                upload(client, path);
+            } else if ("3".equals(arg)) {
+                System.out.println("Bye~");
+                break;
+            }
+        } while (true);
+    }
 
-        transport.close();
+    private static void printMenus() {
+        System.out.print("Select a number\n1) Echo\n2) File upload\n3) Exit\nSelect: ");
     }
 
     private static void echo(ExampleService.Client client, String msg) throws TException {
+        client.getOutputProtocol().getTransport().open();
         String rev = client.echo(msg);
         System.out.println(rev);
+        client.getOutputProtocol().getTransport().close();
     }
 
     private static void upload(ExampleService.Client client, String path) throws URISyntaxException, TException, IOException {
         File file = new File(path);
+        if (!file.exists()) {
+            throw new FileNotFoundException(path);
+        }
+
         UploadInfo uploadInfo = new UploadInfo();
         uploadInfo.msg = UploadMessage.BEGIN_UPLOAD;
         uploadInfo.fileName = file.getName();
         uploadInfo.length = file.length();
 
+        client.getOutputProtocol().getTransport().open();
         boolean success = true;
         if (client.upload(uploadInfo)) {
             FileInputStream fis = new FileInputStream(file);
@@ -85,6 +103,7 @@ public class ExampleClient {
                 success = false;
             }
         }
+        client.getOutputProtocol().getTransport().close();
 
         String alertMsg = success ? "Success to upload." : "Failure to upload.";
         System.out.println(alertMsg);
