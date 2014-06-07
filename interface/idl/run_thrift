@@ -1,4 +1,8 @@
 BASE_DIR="$1"
+if [ -z $BASE_DIR ]
+then
+BASE_DIR=.
+fi
 DEST="$BASE_DIR"/../src/main/java
 mkdir -p "$DEST"
 echo "rm -rf $DEST/*"
