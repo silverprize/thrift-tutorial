@@ -1,6 +1,7 @@
 *.class
 target/
 bin/
+interface/src/main/java/com/
 
 # Configuration Files
 *.iml
