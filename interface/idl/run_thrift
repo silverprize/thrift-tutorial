@@ -1,5 +1,6 @@
 BASE_DIR="$1"
 DEST="$BASE_DIR"/../src/main/java
+mkdir -p "$DEST"
 echo "rm -rf $DEST/*"
 rm -rf "$DEST"/*
 echo thrift -v -r --gen java -out "$DEST" "$BASE_DIR"/example.thrift
