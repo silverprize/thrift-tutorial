@@ -1,16 +1,12 @@
 namespace java com.example
 
-typedef i32 int
-typedef i64 long
-
-enum UploadMessage {
-    BEGIN_UPLOAD = 0,
-    PROGRESS_UPLOAD
-    END_UPLOAD
+enum TransferType {
+    REQUEST = 0,
+    PROGRESS
 }
 
-struct UploadInfo {
-    1: UploadMessage msg,
+struct TransferInfo {
+    1: TransferType type,
     2: string fileName
     3: i64 length,
     4: binary data
@@ -18,5 +14,7 @@ struct UploadInfo {
 
 service ExampleService {
     string echo(1: string input),
-    bool upload(1: UploadInfo info)
+    void upload(1: TransferInfo info),
+    TransferInfo download(1:TransferInfo info),
+    list<string> getFileList()
 }

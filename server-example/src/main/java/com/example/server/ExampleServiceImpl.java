@@ -1,94 +1,167 @@
 package com.example.server;
 
 import com.example.ExampleService;
-import com.example.UploadInfo;
+import com.example.TransferInfo;
 import org.apache.thrift.TException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by silver on 14. 6. 2.
  */
 public class ExampleServiceImpl implements ExampleService.Iface {
 
-    private UploadFile uploadFile;
+    private static final File DOWNLOADS_DIRECTORY = new File("downloads");
+
+    private ByteBuffer ioBuffer = ByteBuffer.allocate(1024 * 10);
+
+    private Context context;
 
     @Override
     public String echo(String input) throws TException {
         try {
             return "from " + InetAddress.getLocalHost().getHostAddress() + " : " + input;
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            throw new TException(e);
         }
-        throw new TException();
     }
 
     @Override
-    public boolean upload(UploadInfo info) throws TException {
-        switch (info.msg) {
-            case BEGIN_UPLOAD:
-                return createSkeleton(info);
-            case PROGRESS_UPLOAD:
-                return progressUpload(info);
-            case END_UPLOAD:
-                return endUpload();
+    public void upload(TransferInfo info) throws TException {
+        switch (info.type) {
+            case REQUEST:
+                beginUpload(info);
+                break;
+
+            case PROGRESS:
+                progressUpload(info);
+                break;
+
             default:
                 throw new TException();
         }
     }
 
-    private boolean createSkeleton(UploadInfo info) {
+    @Override
+    public TransferInfo download(TransferInfo info) throws TException {
+        switch (info.type) {
+            case REQUEST:
+                return beginDownload(info);
+
+            case PROGRESS:
+                return progressDownload();
+
+            default:
+                throw new TException();
+        }
+    }
+
+    @Override
+    public List<String> getFileList() throws TException {
+        String[] arr = DOWNLOADS_DIRECTORY.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                File each = new File(dir, name);
+                return each.isFile() && !each.isHidden();
+            }
+        });
+        ArrayList<String> list = new ArrayList<String>(arr.length);
+        for (String file : arr) {
+            list.add(file);
+        }
+        return list;
+    }
+
+    private void beginUpload(TransferInfo info) throws TException {
         try {
-            File dest = new File("downloads");
-            if (!dest.exists()) {
-                dest.mkdirs();
+            if (!DOWNLOADS_DIRECTORY.exists()) {
+                DOWNLOADS_DIRECTORY.mkdirs();
             }
 
             String name = info.fileName.substring(0, info.fileName.lastIndexOf('.'));
-            String ext = info.fileName.substring(name.length() + 1);
+            String ext = info.fileName.substring(name.length());
 
-            uploadFile = new UploadFile();
-            uploadFile.file = File.createTempFile(name, ext, dest);
-            uploadFile.raf = new RandomAccessFile(uploadFile.file, "rw");
-            uploadFile.length = info.length;
-            return true;
+            context = new Context();
+            context.file = File.createTempFile(name, ext, DOWNLOADS_DIRECTORY);
+            context.raf = new RandomAccessFile(context.file, "rw");
+            context.length = info.length;
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    private boolean progressUpload(UploadInfo info) {
-        try {
-            uploadFile.raf.getChannel().write(info.data, uploadFile.raf.length());
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    private boolean endUpload() {
-        boolean ret = true;
-        if (uploadFile.raf != null) {
             try {
-                uploadFile.raf.close();
-                if (uploadFile.file.length() != uploadFile.length) {
-                    uploadFile.file.delete();
-                    ret = false;
+                context.raf.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            throw new TException(e);
+        }
+    }
+
+    private void progressUpload(TransferInfo info) throws TException {
+        try {
+            context.raf.getChannel().write(info.data, context.raf.length());
+            if (context.file.length() == context.length) {
+                context.raf.close();
+            }
+        } catch (IOException e) {
+            try {
+                context.raf.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            context.file.delete();
+            throw new TException(e);
+        }
+    }
+
+    private TransferInfo beginDownload(TransferInfo reqInfo) throws TException {
+        TransferInfo recvInfo = new TransferInfo();
+        File src = new File(DOWNLOADS_DIRECTORY, reqInfo.fileName);
+        if (src.exists()) {
+            try {
+                context = new Context();
+                context.raf = new RandomAccessFile(src, "r");
+                context.file = src;
+                recvInfo.length = src.length();
+                return recvInfo;
+            } catch (FileNotFoundException e) {
+                try {
+                    context.raf.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+                throw new TException(e);
             }
         }
-        return ret;
+        return recvInfo;
     }
 
-    private static class UploadFile {
+    private TransferInfo progressDownload() throws TException {
+        try {
+            TransferInfo recvInfo = new TransferInfo();
+            recvInfo.data = ioBuffer;
+            ioBuffer.clear();
+            recvInfo.length = context.raf.getChannel().read(ioBuffer);
+            ioBuffer.flip();
+            return recvInfo;
+        } catch (IOException e) {
+            try {
+                context.raf.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            throw new TException(e);
+        }
+    }
+
+    private static class Context {
         private File file;
 
         private RandomAccessFile raf;

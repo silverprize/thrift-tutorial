@@ -1,4 +1,6 @@
-echo "rm -rf ../src/main/java/*"
-rm -rf ../src/main/java/*
-echo "thrift -v -r --gen java -out ../src/main/java example.thrift"
-thrift -v -r --gen java -out ../src/main/java example.thrift
+BASE_DIR="$1"
+DEST="$BASE_DIR"/../src/main/java
+echo "rm -rf $DEST/*"
+rm -rf "$DEST"/*
+echo thrift -v -r --gen java -out "$DEST" "$BASE_DIR"/example.thrift
+thrift -v -r --gen java -out "$DEST" "$BASE_DIR"/example.thrift
