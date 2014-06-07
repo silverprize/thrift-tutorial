@@ -86,9 +86,9 @@ public class ExampleServiceImpl implements ExampleService.Iface {
             if (!DOWNLOADS_DIRECTORY.exists()) {
                 DOWNLOADS_DIRECTORY.mkdirs();
             }
-
-            String name = info.fileName.substring(0, info.fileName.lastIndexOf('.'));
-            String ext = info.fileName.substring(name.length());
+            int dot = info.fileName.lastIndexOf('.');
+            String ext = dot != -1 ? info.fileName.substring(dot, info.fileName.length()) : ".unknown";
+            String name = dot != -1 ? info.fileName.substring(0, info.fileName.length() - ext.length()) : info.fileName;
 
             context = new Context();
             context.file = File.createTempFile(name, ext, DOWNLOADS_DIRECTORY);

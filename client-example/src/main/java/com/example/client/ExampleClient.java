@@ -136,8 +136,9 @@ public class ExampleClient {
 
     private static void download(ExampleService.Client client, String fileName)
             throws IOException {
-        String name = fileName.substring(0, fileName.indexOf('.'));
-        String ext = fileName.substring(name.length());
+        int dot = fileName.lastIndexOf('.');
+        String name = dot != -1 ? fileName.substring(0, fileName.indexOf('.')) : fileName;
+        String ext = dot != -1 ? fileName.substring(name.length()) : ".unknown";
         File destinationDir = new File("downloads");
         File destination = File.createTempFile(name, ext, destinationDir);
         FileOutputStream fos = new FileOutputStream(destination);
