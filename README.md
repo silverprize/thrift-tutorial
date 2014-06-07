@@ -16,7 +16,7 @@ Apache thrift를 쉽게 접근하기 위한 도움을 제공합니다.<br/>
 - Apache-maven-3.2.1
 - IntelliJ 13.1.3
 
-###### Tutorial 필수 Maven dependencies
+###### Tutorial Maven dependencies
     <dependency>
         <groupId>org.apache.thrift</groupId>
         <artifactId>libthrift</artifactId>
