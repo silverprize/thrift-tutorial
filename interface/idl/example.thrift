@@ -13,9 +13,15 @@ struct TransferInfo {
     4: binary data
 }
 
-service ExampleService {
-    string echo(1: string input),
-    void upload(1: TransferInfo info),
+service EchoService {
+    string echo(1: string input)
+}
+
+service DownloadService {
     TransferInfo download(1:TransferInfo info),
     list<string> getFileList()
+}
+
+service UploadService {
+    void upload(1: TransferInfo info),
 }

@@ -1,13 +1,14 @@
 package com.example.client;
 
-import com.example.ExampleService;
+import com.example.DownloadService;
+import com.example.EchoService;
 import com.example.TransferInfo;
 import com.example.TransferType;
+import com.example.UploadService;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
-import org.apache.thrift.transport.TTransport;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,19 +25,11 @@ import java.util.Scanner;
  */
 public class ExampleClient {
 
-    public static void main(String[] args) throws IOException, URISyntaxException {
-        String address = "localhost";
-        int port = 10004;
-        if (System.getProperty("address") != null) {
-            address = System.getProperty("address");
-        }
-        if (Integer.getInteger("port") != null) {
-            port = Integer.getInteger("port");
-        }
-
-        TTransport transport = new TSocket(address, port);
-        TProtocol protocol = new TBinaryProtocol(transport);
-        ExampleService.Client client = new ExampleService.Client(protocol);
+    public static void main(String[] args) throws IOException, URISyntaxException, TException {
+        String address = System.getProperty("address", "localhost");
+        int echoPort = Integer.getInteger("port.echo", 10004);
+        int downloadPort = Integer.getInteger("port.download", 10040);
+        int uploadPort = Integer.getInteger("port.upload", 10400);
 
         Scanner prompt = new Scanner(System.in);
         do {
@@ -45,13 +38,13 @@ public class ExampleClient {
             if ("1".equals(arg)) {
                 System.out.print("Input message: ");
                 String msg = prompt.nextLine();
-                echo(client, msg);
+                echo(new TSocket(address, echoPort), msg);
             } else if ("2".equals(arg)) {
                 System.out.print("Input file path: ");
                 String path = prompt.nextLine();
-                upload(client, path);
+                upload(new TSocket(address, uploadPort), path);
             } else if ("3".equals(arg)) {
-                List<String> files = getAvailableFileList(client);
+                List<String> files = getAvailableFileList(new TSocket(address, downloadPort));
                 if (files.isEmpty()) {
                     System.out.println("No files are available.");
                 } else {
@@ -63,13 +56,13 @@ public class ExampleClient {
                     String fileNumber = prompt.nextLine();
                     int selected = Integer.parseInt(fileNumber);
                     if (selected >= 0 && selected < files.size()) {
-                        download(client, files.get(selected));
+                        download(new TSocket(address, downloadPort), files.get(selected));
                     } else {
                         System.out.println(selected + " is wrong number.");
                     }
                 }
             } else if ("4".equals(arg)) {
-                System.out.println("Bye~");
+                System.out.println("Bye!");
                 break;
             }
         } while (true);
@@ -84,18 +77,20 @@ public class ExampleClient {
                 "Select: ");
     }
 
-    private static void echo(ExampleService.Client client, String msg) {
+    private static void echo(TSocket socket, String msg) {
         try {
-            client.getOutputProtocol().getTransport().open();
+            TProtocol protocol = new TBinaryProtocol(socket);
+            EchoService.Client client = new EchoService.Client(protocol);
+            socket.open();
             String rev = client.echo(msg);
             System.out.println(rev);
-            client.getOutputProtocol().getTransport().close();
+            socket.close();
         } catch (TException e) {
             e.printStackTrace();
         }
     }
 
-    private static void upload(ExampleService.Client client, String path) throws URISyntaxException, IOException {
+    private static void upload(TSocket socket, String path) throws URISyntaxException, IOException {
         File file = new File(path);
         if (!file.exists()) {
             System.out.println("File not found \"" + file.getAbsolutePath() + "\"");
@@ -109,7 +104,9 @@ public class ExampleClient {
             reqInfo.fileName = file.getName();
             reqInfo.length = file.length();
 
-            client.getOutputProtocol().getTransport().open();
+            socket.open();
+            TProtocol protocol = new TBinaryProtocol(socket);
+            UploadService.Client client = new UploadService.Client(protocol);
             client.upload(reqInfo);
 
             reqInfo.type = TransferType.PROGRESS;
@@ -127,14 +124,14 @@ public class ExampleClient {
             fis = null;
             file.delete();
         } finally {
-            client.getOutputProtocol().getTransport().close();
+            socket.close();
             if (fis != null) {
                 fis.close();
             }
         }
     }
 
-    private static void download(ExampleService.Client client, String fileName)
+    private static void download(TSocket socket, String fileName)
             throws IOException {
         int dot = fileName.lastIndexOf('.');
         String name = dot != -1 ? fileName.substring(0, fileName.indexOf('.')) : fileName;
@@ -148,7 +145,9 @@ public class ExampleClient {
             reqInfo.type = TransferType.REQUEST;
             reqInfo.fileName = fileName;
 
-            client.getInputProtocol().getTransport().open();
+            socket.open();
+            TProtocol protocol = new TBinaryProtocol(socket);
+            DownloadService.Client client = new DownloadService.Client(protocol);
             TransferInfo recvInfo = client.download(reqInfo);
 
             if (!destinationDir.exists()) {
@@ -170,21 +169,24 @@ public class ExampleClient {
             fos = null;
             destination.delete();
         } finally {
-            client.getInputProtocol().getTransport().close();
+            socket.close();
             if (fos != null) {
                 fos.close();
             }
         }
     }
 
-    private static List<String> getAvailableFileList(ExampleService.Client client) {
+    private static List<String> getAvailableFileList(TSocket socket) {
         try {
-            client.getOutputProtocol().getTransport().open();
+            TProtocol protocol = new TBinaryProtocol(socket);
+            DownloadService.Client client = new DownloadService.Client(protocol);
+            socket.open();
             List<String> list = client.getFileList();
-            client.getOutputProtocol().getTransport().close();
             return list;
         } catch (TException e) {
             e.printStackTrace();
+        } finally {
+            socket.close();
         }
         return null;
     }
