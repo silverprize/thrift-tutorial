@@ -43,14 +43,22 @@ Apache thrift를 쉽게 접근하기 위한 도움을 제공합니다.<br/>
 3. file download
 
 ###### Tutorial
-1. 소스코드 생성하기
-    - run_thrift shell스크립트 사용법
-    <pre>#./run_thrift [project root] [java or py or ...]</pre>
+1. Generate source
+    - Usage run_thrift
+    <pre>$ ./run_thrift [project root] [java or py or ...]</pre>
     - Java
-    <pre>#cd your project path/interface/idl</pre>
-    <pre>#./run_thrift . java</pre>
+    <pre>$ cd your project path/interface/idl<br/>$ ./run_thrift . java</pre>
     - python
-    <pre>#cd your project path/interface/idl</pre>
-    <pre>#./run_thrift . py</pre>
-2. server 실행
-3. client 실행
+    <pre>$ cd your project path/interface/idl<br/>$ ./run_thrift . py</pre>
+2. Prepare common
+    - Create Maven artifacts
+    <pre>$ cd your project path/common<br/>$ mvn install<br/>$cd ../interface<br/>$ mvn install<br/></pre>
+3. Execute server
+    - Java
+    <pre>$ cd your project path/server-example<br/>$ mvn install<br/>$ java -jar target/server-example-1.0-SNAPSHOT.jar</pre>
+4. Execute client
+    - Java
+    <pre>$ cd your project path/client-example<br/>$ mvn install<br/>$ java -jar target/client-example-1.0-SNAPSHOT.jar</pre>
+    - python
+    <pre>$cd client-example-py<br/>python ExampleClient.py</pre>
+    

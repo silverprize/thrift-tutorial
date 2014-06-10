@@ -62,6 +62,7 @@ public class ExampleServer {
         EchoService.Processor<EchoService.Iface> processor = new EchoService.Processor<EchoService.Iface>(serviceImpl);
         simpleServerArgs.processor(processor);
         TSimpleServer simpleServer = new TSimpleServer(simpleServerArgs);
+        System.out.println("Start echo service.");
         simpleServer.serve();
     }
 
@@ -72,6 +73,7 @@ public class ExampleServer {
         DownloadService.Processor<DownloadService.Iface> processor = new DownloadService.Processor<DownloadService.Iface>(serviceImpl);
         simpleServerArgs.processor(processor);
         TSimpleServer simpleServer = new TSimpleServer(simpleServerArgs);
+        System.out.println("Start download service.");
         simpleServer.serve();
     }
 
@@ -82,6 +84,7 @@ public class ExampleServer {
         UploadService.Processor<UploadService.Iface> processor = new UploadService.Processor<UploadService.Iface>(serviceImpl);
         simpleServerArgs.processor(processor);
         TSimpleServer simpleServer = new TSimpleServer(simpleServerArgs);
+        System.out.println("Start upload service.");
         simpleServer.serve();
     }
 }

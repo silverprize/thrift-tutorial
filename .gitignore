@@ -1,7 +1,9 @@
+# Generated
 *.class
 target/
 bin/
-interface/src/main/java/com/
+META-INF/
+interface/src/main/*
 
 # Configuration Files
 *.iml
