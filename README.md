@@ -2,7 +2,13 @@ thrift-tutorial
 ===============
 
 Apache thrift를 쉽게 접근하기 위한 도움을 제공합니다.<br/>
-최신 버전(0.9.1)을 기준으로 합니다.
+최신 버전(0.9.1)을 기준으로 합니다.<br/>
+
+###### References
+- [Thrift Introduction](http://jnb.ociweb.com/jnb/jnbJun2009.html)
+- [Thrift: The Missing Guide](http://diwakergupta.github.io/thrift-missing-guide/)<br/>
+- [Thrift vs Protocol Buffer vs Avro](http://www.slideshare.net/IgorAnishchenko/pb-vs-thrift-vs-avro)
+- [Data serialization formats](http://en.wikipedia.org/wiki/Comparison_of_data_serialization_formats)
 
 ###### Thrift 설치
 - [Download](http://thrift.apache.org/download)
