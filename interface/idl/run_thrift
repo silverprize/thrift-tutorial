@@ -1,11 +1,19 @@
 BASE_DIR="$1"
+LANG="$2"
+
 if [ -z $BASE_DIR ]
 then
 BASE_DIR=.
 fi
-DEST="$BASE_DIR"/../src/main/java
+
+if [ -z $LANG ]
+then
+LANG=java
+fi
+
+DEST="$BASE_DIR"/../src/main/"$LANG"
 mkdir -p "$DEST"
 echo "rm -rf $DEST/*"
 rm -rf "$DEST"/*
-echo thrift -v -r --gen java -out "$DEST" "$BASE_DIR"/example.thrift
-thrift -v -r --gen java -out "$DEST" "$BASE_DIR"/example.thrift
+echo thrift -v -r --gen "$LANG" -out "$DEST" "$BASE_DIR"/example.thrift
+thrift -v -r --gen "$LANG" -out "$DEST" "$BASE_DIR"/example.thrift

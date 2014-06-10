@@ -1,4 +1,5 @@
 namespace java com.example
+namespace py com.example
 
 enum TransferType {
     REQUEST = 0,

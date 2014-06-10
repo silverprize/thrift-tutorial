@@ -29,7 +29,7 @@ Apache thrift를 쉽게 접근하기 위한 도움을 제공합니다.<br/>
     </dependency>
     
 메이븐을 통한 소스코드 자동링크는 현재 버그로 불가능[THRIFT-2269](https://issues.apache.org/jira/browse/THRIFT-2269)<br />
-[thrift0.9.1.zip](https://drive.google.com/file/d/0B_EygGt1wSEcTXpsY2wtSWoxRW8/edit?usp=sharing) 다운로드하여 직접 경로지정 필요
+[thrift0.9.1.zip](https://drive.google.com/file/d/0B_EygGt1wSEcTXpsY2wtSWoxRW8/edit?usp=sharing) 다운로드하여 직접 경로지정
 
 ###### 모듈 소개
 1. interface : Thrift로 생성한 특정 언어의 인터페이스 소스코드를 가지는 모듈로 .thrift파일을 포함하고 있습니다. 
@@ -43,8 +43,14 @@ Apache thrift를 쉽게 접근하기 위한 도움을 제공합니다.<br/>
 3. file download
 
 ###### Tutorial
-1. Java 소스코드 생성하기
-<pre>#cd your project path/interface/idl</pre>
-<pre>#./run_thrift</pre>
-2. server-example 실행
-3. client-example 실행
+1. 소스코드 생성하기
+    - run_thrift shell스크립트 사용법
+    <pre>#./run_thrift [project root] [java or py or ...]</pre>
+    - Java
+    <pre>#cd your project path/interface/idl</pre>
+    <pre>#./run_thrift . java</pre>
+    - python
+    <pre>#cd your project path/interface/idl</pre>
+    <pre>#./run_thrift . py</pre>
+2. server 실행
+3. client 실행
