@@ -60,5 +60,5 @@ Apache thrift를 쉽게 접근하기 위한 도움을 제공합니다.<br/>
     - Java
     <pre>$ cd your project path/client-example<br/>$ mvn install<br/>$ java -jar target/client-example-1.0-SNAPSHOT.jar</pre>
     - python
-    <pre>$cd client-example-py<br/>python ExampleClient.py</pre>
+    <pre>$cd client-example-py<br/>$ python ExampleClient.py</pre>
     
