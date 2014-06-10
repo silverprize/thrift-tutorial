@@ -58,7 +58,7 @@ Apache thrift를 쉽게 접근하기 위한 도움을 제공합니다.<br/>
     <pre>$ cd your project path/interface/idl<br/>$ ./run_thrift . py</pre>
 2. Prepare common
     - Create Maven artifacts
-    <pre>$ cd your project path/common<br/>$ mvn install<br/>$cd ../interface<br/>$ mvn install<br/></pre>
+    <pre>$ cd your project path/common<br/>$ mvn install<br/>$ cd ../interface<br/>$ mvn install<br/></pre>
 3. Execute server
     - Java
     <pre>$ cd your project path/server-example<br/>$ mvn install<br/>$ java -jar target/server-example-1.0-SNAPSHOT.jar</pre>
